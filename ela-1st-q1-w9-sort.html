@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kind or Unkind? Sorting Game</title>
+<style>
+  :root{
+    --bg:#fef9e7; --card:#ffffff; --kind:#7bd389; --unkind:#ff8fa3;
+    --text:#3a3a3a; --accent:#5b7fff;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    box-sizing:border-box;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:'Comic Sans MS','Trebuchet MS',sans-serif;
+    background:linear-gradient(160deg,#fff7e6,#e6f7ff);
+    color:var(--text); display:flex; flex-direction:column; align-items:center;
+    min-height:100%; padding:16px; overflow-x:hidden;
+  }
+  h1{font-size:1.5rem; text-align:center; margin:8px 0 4px;}
+  p.sub{margin:0 0 12px; text-align:center; font-size:1rem; color:#555;}
+  #score{font-weight:bold; font-size:1.1rem; margin-bottom:10px;}
+  #card-zone{
+    width:100%; max-width:340px; height:110px; display:flex; align-items:center; justify-content:center;
+    margin-bottom:20px;
+  }
+  .card{
+    background:var(--card); border-radius:18px; padding:18px 20px; box-shadow:0 6px 14px rgba(0,0,0,0.15);
+    font-size:1.2rem; text-align:center; width:100%; user-select:none; touch-action:none;
+    cursor:grab; border:3px solid var(--accent); transition:transform .15s;
+  }
+  .card.dragging{opacity:0.85; cursor:grabbing; z-index:10;}
+  #bins{display:flex; gap:14px; width:100%; max-width:420px; justify-content:center;}
+  .bin{
+    flex:1; min-height:150px; border-radius:16px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; font-size:1.3rem; font-weight:bold; color:#fff;
+    border:4px dashed rgba(255,255,255,0.7); padding:12px; transition:transform .15s, background .15s;
+  }
+  .bin.kind{background:var(--kind);}
+  .bin.unkind{background:var(--unkind);}
+  .bin.hover{transform:scale(1.05); border-color:#fff;}
+  .bin .emoji{font-size:2.2rem; margin-bottom:6px;}
+  #feedback{
+    min-height:34px; margin-top:16px; font-size:1.15rem; font-weight:bold; text-align:center;
+  }
+  #restart{
+    margin-top:14px; padding:10px 22px; font-size:1rem; border:none; border-radius:24px;
+    background:var(--accent); color:#fff; cursor:pointer; display:none;
+  }
+  #restart:hover{opacity:0.9;}
+  .pop{position:fixed; font-size:1.6rem; pointer-events:none; animation:float 0.9s ease-out forwards;}
+  @keyframes float{ to{ transform:translateY(-60px); opacity:0; } }
+</style>
+</head>
+<body>
+  <h1>Kind or Unkind? 🌟</h1>
+  <p class="sub">Drag each card into the right bin!</p>
+  <div id="score">Score: 0 / 0</div>
+  <div id="card-zone"></div>
+  <div id="bins">
+    <div class="bin kind" data-type="kind"><span class="emoji">💚</span>Kind</div>
+    <div class="bin unkind" data-type="unkind"><span class="emoji">💔</span>Unkind</div>
+  </div>
+  <div id="feedback"></div>
+  <button id="restart">Play Again</button>
+
+<script>
+const actions = [
+  {text:"Sharing your crayons", type:"kind"},
+  {text:"Saying 'thank you'", type:"kind"},
+  {text:"Inviting someone to play", type:"kind"},
+  {text:"Helping a friend who fell", type:"kind"},
+  {text:"Taking turns", type:"kind"},
+  {text:"Saying sorry after a bump", type:"kind"},
+  {text:"Cheering for a classmate", type:"kind"},
+  {text:"Listening when someone talks", type:"kind"},
+  {text:"Grabbing a toy without asking", type:"unkind"},
+  {text:"Laughing at a mistake", type:"unkind"},
+  {text:"Leaving someone out", type:"unkind"},
+  {text:"Calling someone a mean name", type:"unkind"},
+  {text:"Pushing or hitting", type:"unkind"},
+  {text:"Not sharing", type:"unkind"},
+  {text:"Interrupting someone talking", type:"unkind"},
+  {text:"Saying 'you can't play with us'", type:"unkind"}
+];
+
+let deck = [], current = null, correct = 0, total = 0;
+const cardZone = document.getElementById('card-zone');
+const bins = document.querySelectorAll('.bin');
+const scoreEl = document.getElementById('score');
+const feedbackEl = document.getElementById('feedback');
+const restartBtn = document.getElementById('restart');
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function startGame(){
+  deck = shuffle([...actions]);
+  correct = 0; total = 0;
+  scoreEl.textContent = `Score: 0 / 0`;
+  feedbackEl.textContent = '';
+  restartBtn.style.display = 'none';
+  nextCard();
+}
+
+function nextCard(){
+  feedbackEl.textContent = '';
+  if(deck.length === 0){
+    cardZone.innerHTML = '';
+    feedbackEl.textContent = `All done! You got ${correct} out of ${total} 🎉`;
+    restartBtn.style.display = 'inline-block';
+    return;
+  }
+  current = deck.pop();
+  cardZone.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.textContent = current.text;
+  cardZone.appendChild(card);
+  makeDraggable(card);
+}
+
+function makeDraggable(card){
+  let startX, startY, offsetX, offsetY, dragging = false;
+
+  card.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    card.classList.add('dragging');
+    card.setPointerCapture(e.pointerId);
+    const rect = card.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    card.style.position = 'fixed';
+    card.style.width = rect.width + 'px';
+    card.style.left = rect.left + 'px';
+    card.style.top = rect.top + 'px';
+  });
+
+  card.addEventListener('pointermove', (e) => {
+    if(!dragging) return;
+    card.style.left = (e.clientX - offsetX) + 'px';
+    card.style.top = (e.clientY - offsetY) + 'px';
+    bins.forEach(bin => {
+      const r = bin.getBoundingClientRect();
+      const over = e.clientX > r.left && e.clientX < r.right && e.clientY > r.top && e.clientY < r.bottom;
+      bin.classList.toggle('hover', over);
+    });
+  });
+
+  card.addEventListener('pointerup', (e) => {
+    if(!dragging) return;
+    dragging = false;
+    card.classList.remove('dragging');
+    let dropped = null;
+    bins.forEach(bin => {
+      const r = bin.getBoundingClientRect();
+      const over = e.clientX > r.left && e.clientX < r.right && e.clientY > r.top && e.clientY < r.bottom;
+      bin.classList.remove('hover');
+      if(over) dropped = bin.dataset.type;
+    });
+    if(dropped){
+      handleDrop(dropped, card);
+    } else {
+      // snap back
+      card.style.position = '';
+      card.style.left = '';
+      card.style.top = '';
+      card.style.width = '';
+    }
+  });
+}
+
+function handleDrop(type, cardEl){
+  total++;
+  const isCorrect = type === current.type;
+  if(isCorrect) correct++;
+  scoreEl.textContent = `Score: ${correct} / ${total}`;
+  feedbackEl.style.color = isCorrect ? '#2e7d32' : '#c62828';
+  feedbackEl.textContent = isCorrect ? "Yes! That's " + current.type + " 🎉" : "Not quite — that's " + current.type + " 🤔";
+  cardEl.remove();
+  setTimeout(nextCard, 900);
+}
+
+restartBtn.addEventListener('click', startGame);
+startGame();
+</script>
+</body>
+</html>
