@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Little Red Riding Hood and the Wolf Sort</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eaf4fb;--ink:#12263a;--card:#fff;--line:#b9d3e6;--a:#1b998b;--b:#e59a00;--c:#7b4fd0;--sa:#d9f3ef;--sb:#fdf0cf;--sc:#e9e0fa}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1c2a;--ink:#eaf2f8;--card:#1a2c3f;--line:#35506a;--sa:#12403c;--sb:#463510;--sc:#2e2250}}
+:root[data-theme="dark"]{--bg:#0f1c2a;--ink:#eaf2f8;--card:#1a2c3f;--line:#35506a;--sa:#12403c;--sb:#463510;--sc:#2e2250}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Fredoka','Trebuchet MS',system-ui,sans-serif;min-height:100vh}
+main{max-width:820px;margin:0 auto;padding:20px 16px 32px}
+h1{font-size:1.7rem;margin:0 0 4px;font-weight:600}
+.sub{margin:0 0 14px;opacity:.8}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.topics{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.topic{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:6px 16px}
+.topic[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px}
+.reset{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:6px 14px}
+.pool{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:64px;padding:12px;border:2px dashed var(--line);border-radius:16px;margin-bottom:16px}
+.item{background:var(--card);border:3px solid var(--line);border-radius:14px;padding:9px 14px;font-size:1.1rem;font-weight:500;text-align:center;user-select:none}
+.item.sel{border-color:var(--ink);transform:translateY(-3px);box-shadow:0 4px 0 var(--ink)}
+.item.dragging{opacity:.4}
+.item.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.buckets{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:10px}
+.bucket{border:3px solid;border-radius:18px;padding:10px 8px;min-height:240px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.bucket[data-k="a"]{border-color:var(--a);background:var(--sa)}
+.bucket[data-k="both"]{border-color:var(--b);background:var(--sb)}
+.bucket[data-k="b"]{border-color:var(--c);background:var(--sc)}
+.bucket.over{outline:4px solid var(--ink)}
+.bucket h2{margin:0;font-size:1.15rem;font-weight:600;text-align:center}
+.bucket small{opacity:.8;margin-top:-6px}
+.placed{display:flex;flex-direction:column;gap:6px;width:100%;align-items:center}
+.placed span{background:var(--card);border-radius:10px;padding:4px 8px;font-weight:500;width:100%;text-align:center;font-size:.95rem}
+#msg{min-height:1.6em;text-align:center;margin:14px 0 0;font-weight:500}
+.win{text-align:center;font-size:1.3rem;font-weight:600;padding:18px;border-radius:16px;background:var(--card);border:3px solid var(--a);margin-top:14px}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+@media (max-width:560px){.buckets{gap:6px}.bucket{padding:8px 4px}.bucket h2{font-size:1rem}.item{font-size:1rem;padding:8px 10px}.placed span{font-size:.85rem}}
+@media (prefers-reduced-motion:reduce){.item.shake{animation:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Little Red Riding Hood and the Wolf</h1>
+<p class="sub">Is it true for only one character, or for both? Drag each card to a group, or tap the card and then tap the group.</p>
+<div class="topics" id="topics"></div>
+<div class="bar"><span id="count"></span><button class="reset" id="reset">New round</button></div>
+<div class="pool" id="pool" aria-label="Cards to sort"></div>
+<div class="buckets" id="buckets"></div>
+<p id="msg" role="status" aria-live="polite"></p>
+<div id="done"></div>
+</main>
+<script>
+const TOPICS=[
+{name:'Little Red Riding Hood and the Wolf',a:'Red Riding Hood',b:'the Wolf',
+ a_only:['Wears a red hood','Carries a basket of treats','Is a little girl','Brings food to Grandmother','Is kind and trusting','Gets tricked'],
+ b_only:['Has sharp teeth','Is an animal','Tricks someone','Wears Grandmother\'s nightgown','Is sneaky','Is hungry'],
+ both:['Is a character in the story','Walks through the forest','Goes to Grandmother\'s house','Talks with the other one','Meets the other one in the woods']}
+];
+let T=TOPICS[0],items,selected=null,dragged=null,total=0;
+const pool=document.getElementById('pool'),bk=document.getElementById('buckets'),msg=document.getElementById('msg');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+function buildTopics(){
+  const el=document.getElementById('topics');el.innerHTML='';
+  TOPICS.forEach(t=>{const b=document.createElement('button');b.className='topic';b.textContent=t.name;
+    b.setAttribute('aria-pressed',t===T);b.onclick=()=>{T=t;buildTopics();build()};el.appendChild(b)});
+}
+function build(){
+  selected=null;msg.textContent='';document.getElementById('done').innerHTML='';
+  const pick=(arr,k)=>shuffle(arr).slice(0,4).map(w=>({w,k}));
+  items=shuffle([...pick(T.a_only,'a'),...pick(T.both,'both'),...pick(T.b_only,'b')]);
+  total=items.length;
+  bk.innerHTML='';
+  [['a','Only '+T.a,''],['both','Both','Alike'],['b','Only '+T.b,'']].forEach(([k,h,s])=>{
+    const d=document.createElement('div');d.className='bucket';d.dataset.k=k;d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label',h);
+    d.innerHTML='<h2>'+h+'</h2>'+(s?'<small>'+s+'</small>':'')+'<div class="placed"></div>';
+    d.onclick=()=>drop(k);
+    d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(k)}};
+    d.ondragover=e=>{e.preventDefault();d.classList.add('over')};
+    d.ondragleave=()=>d.classList.remove('over');
+    d.ondrop=e=>{e.preventDefault();d.classList.remove('over');if(dragged){selected=dragged;drop(k)}};
+    bk.appendChild(d);
+  });
+  render();
+}
+function render(){
+  pool.innerHTML='';
+  items.forEach(f=>{
+    const el=document.createElement('button');el.className='item'+(selected===f?' sel':'');el.textContent=f.w;el.draggable=true;
+    el.onclick=()=>{selected=selected===f?null:f;msg.textContent=selected?'Where does "'+f.w+'" belong?':'';render()};
+    el.ondragstart=e=>{dragged=f;el.classList.add('dragging');e.dataTransfer.setData('text/plain','x')};
+    el.ondragend=()=>{dragged=null;el.classList.remove('dragging')};
+    f.el=el;pool.appendChild(el);
+  });
+  document.getElementById('count').textContent=(total-items.length)+' of '+total+' sorted';
+}
+function drop(k){
+  if(!selected){msg.textContent='Pick a card first.';return}
+  const f=selected;
+  if(f.k===k){
+    const sp=document.createElement('span');sp.textContent=f.w;
+    bk.querySelector('[data-k="'+k+'"] .placed').appendChild(sp);
+    items=items.filter(x=>x!==f);selected=null;
+    msg.textContent=k==='both'?'Yes! That is true for both.':'Yes! That is true for only '+(k==='a'?T.a:T.b)+'.';
+    render();
+    if(!items.length)document.getElementById('done').innerHTML='<div class="win">All sorted. You compared and contrasted the characters!</div>';
+  }else{
+    msg.textContent='Not quite. Ask: is it true for '+T.a+', for '+T.b+', or for both?';
+    const el=f.el;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');
+  }
+}
+document.getElementById('reset').onclick=build;
+document.getElementById('topics').style.display='none';build();
+</script>
+</body>
+</html>
