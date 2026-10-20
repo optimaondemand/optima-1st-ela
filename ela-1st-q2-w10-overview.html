@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Optima Academy Online – ELA Grade 1: Follow the Path Overview</title>
+<title>Optima Academy Online &ndash; ELA Grade 1: Follow the Path Overview</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -47,19 +47,15 @@ body{font-family:'Nunito','Century Gothic','Arial Rounded MT Bold',Verdana,sans-
 .theme-purple .card-head-icon{background:linear-gradient(135deg,#6A1B9A,#8E24AA)}
 .theme-teal .card-head{background:linear-gradient(135deg,#E0F2F1,#B2DFDB);border-color:#80CBC4}
 .theme-teal .card-head-icon{background:linear-gradient(135deg,#00695C,#00897B)}
-/* Essential Question box */
 .eq-box{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border:2px solid #90CAF9;border-radius:16px;padding:18px 20px;display:flex;align-items:flex-start;gap:12px}
 .eq-box .eq-icon{font-size:30px;flex-shrink:0;line-height:1}
 .eq-box .eq-label{font-size:11px;color:#0D47A1;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:4px}
 .eq-box .eq-question{font-size:19px;color:#2B1D12;font-weight:700;line-height:1.6;font-style:italic}
-/* I Can items */
 .ican-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#FAFAF6;border-radius:14px;margin-bottom:10px;border:1.5px solid #E8DDD2}
 .ican-item:last-child{margin-bottom:0}
 .ican-num{width:34px;height:34px;border-radius:50%;color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.12)}
 .ican-text{font-size:17px;color:#1B4332;line-height:1.6;padding-top:4px}
-/* Two col */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-/* Standards tooltip */
 .standards-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;justify-content:center}
 .std-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.3px;position:relative;cursor:help;transition:transform 0.15s}
 .std-tag .std-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:240px;background:#0D47A1;color:#fff;font-size:12px;font-weight:600;line-height:1.45;padding:10px 14px;border-radius:12px;text-align:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 0.2s,visibility 0.2s;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,0.2)}
@@ -70,20 +66,16 @@ body{font-family:'Nunito','Century Gothic','Arial Rounded MT Bold',Verdana,sans-
 .std-tag:nth-child(8n+2){background:#E8F5E9;border:1.5px solid #A5D6A7;color:#2E7D32}
 .std-tag:nth-child(8n+3){background:#E1F5FE;border:1.5px solid #81D4FA;color:#0277BD}
 .std-tag:nth-child(8n+4){background:#FFF8E1;border:1.5px solid #FFD54F;color:#F57F17}
-/* Detail grid */
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .detail-box{background:#F7F5F1;border-radius:12px;padding:14px 16px;border:1px solid #E8DDD2}
 .detail-box-label{font-size:10px;color:#9A8E82;text-transform:uppercase;letter-spacing:0.7px;font-weight:700;margin-bottom:4px}
 .detail-box-value{font-size:15px;color:#0D47A1;font-weight:800;line-height:1.4}
-/* Callout */
 .callout{border-radius:14px;padding:16px 18px;display:flex;align-items:flex-start;gap:12px}
 .callout-icon{font-size:28px;flex-shrink:0;margin-top:2px}
 .callout p{font-size:16px;color:#2B1D12;line-height:1.65;margin:0}
 .callout-tip{background:linear-gradient(135deg,#E1F5FE,#B3E5FC);border:2px solid #81D4FA}
-/* Reflection */
 .reflection-box{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:18px 22px;border:2px solid #90CAF9}
 .reflection-box p{font-size:17px;color:#0D47A1;font-weight:700;margin:0}
-/* Bounce emoji */
 @keyframes emoji-bounce{0%{transform:scale(1)}30%{transform:scale(1.25) rotate(-8deg)}60%{transform:scale(1.1) rotate(6deg)}100%{transform:scale(1)}}
 .bounce-emoji{display:inline-block;cursor:default}
 .bounce-emoji:hover{animation:emoji-bounce 0.5s ease}
@@ -196,7 +188,7 @@ body{font-family:'Nunito','Century Gothic','Arial Rounded MT Bold',Verdana,sans-
         items.forEach(function (item) {
             var clean = item.text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B50}\u{2B55}\u{25A0}-\u{25FF}\u{2702}-\u{27B0}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, "").replace(/\s+/g, " ").trim();
             if (!clean) return;
-            var sentences = clean.match(/[^.!?]+[.!?]+["”’')\]]*\s*|[^.!?]+$/g) || [clean];
+            var sentences = clean.match(/[^.!?]+[.!?]+["”’‘)\]]*\s*|[^.!?]+$/g) || [clean];
             sentences.forEach(function (s) {
                 s = s.trim();
                 if (s) q.push({ el: item.el, text: s });
@@ -333,7 +325,7 @@ body{font-family:'Nunito','Century Gothic','Arial Rounded MT Bold',Verdana,sans-
       <span class="std-tag">ELA.1.R.1.2<span class="std-tooltip"><span class="std-code">ELA.1.R.1.2</span>Identify the topic of and relevant details in a text.</span></span>
       <span class="std-tag">ELA.1.R.2.3<span class="std-tooltip"><span class="std-code">ELA.1.R.2.3</span>Identify and explain the moral of a story.</span></span>
       <span class="std-tag">ELA.1.R.3.1<span class="std-tooltip"><span class="std-code">ELA.1.R.3.1</span>Identify and explain descriptive words and phrases in text(s).</span></span>
-      <span class="std-tag">ELA.1.R.3.2<span class="std-tooltip"><span class="std-code">ELA.1.R.3.2</span>Identify the topic, main idea, and details in a text.</span></span>
+      <span class="std-tag">ELA.1.R.3.2<span class="std-tooltip"><span class="std-code">ELA.1.R.3.2</span>Retell a text in oral or written form to enhance comprehension.</span></span>
       <span class="std-tag">ELA.1.R.3.3<span class="std-tooltip"><span class="std-code">ELA.1.R.3.3</span>Compare and contrast two texts on the same topic.</span></span>
       <span class="std-tag">ELA.1.C.2.1<span class="std-tooltip"><span class="std-code">ELA.1.C.2.1</span>Write sentences with correct capitalization and ending punctuation.</span></span>
       <span class="std-tag">ELA.1.C.5.1<span class="std-tooltip"><span class="std-code">ELA.1.C.5.1</span>Use common, proper, and possessive nouns and action verbs.</span></span>
@@ -342,7 +334,7 @@ body{font-family:'Nunito','Century Gothic','Arial Rounded MT Bold',Verdana,sans-
 </div>
 
 <div class="content">
-<div class="art-divider"><span class="bounce-emoji">&#x1F4D6;</span> <span class="bounce-emoji">&#x270F;&#xFE0F;</span> <span class="bounce-emoji">&#x1F9E3;</span> <span class="bounce-emoji">&#x1F4DD;</span> <span class="bounce-emoji">&#x1F43A;</span> <span class="bounce-emoji">&#x1F9FA;</span> <span class="bounce-emoji">&#x1F4DA;</span> <span class="bounce-emoji">&#x1F989;</span></div>
+<div class="art-divider"><span class="bounce-emoji">&#x1F4D6;</span> <span class="bounce-emoji">&#x270F;&#xFE0F;</span> <span class="bounce-emoji">&#x1F43B;</span> <span class="bounce-emoji">&#x1F4DD;</span> <span class="bounce-emoji">&#x1F49A;</span> <span class="bounce-emoji">&#x1F42D;</span> <span class="bounce-emoji">&#x1F4DA;</span> <span class="bounce-emoji">&#x1F989;</span></div>
 
 <div class="two-col">
   <div class="card theme-blue">
@@ -375,7 +367,7 @@ body{font-family:'Nunito','Century Gothic','Arial Rounded MT Bold',Verdana,sans-
     <div class="card-body">
       <div class="ican-item"><div class="ican-num" style="background:linear-gradient(135deg,#FF7043,#FF8A65);">1</div><div class="ican-text"><strong>I can</strong> compare and contrast the characters in two versions of a story.</div></div>
       <div class="ican-item"><div class="ican-num" style="background:linear-gradient(135deg,#7E57C2,#9575CD);">2</div><div class="ican-text"><strong>I can</strong> compare and contrast the events in two versions of a story.</div></div>
-      <div class="ican-item"><div class="ican-num" style="background:linear-gradient(135deg,#26A69A,#4DB6AC);">3</div><div class="ican-text"><strong>I can</strong> explain how changing a character&rsquo;s choices changes what happens in the story.</div></div>
+      <div class="ican-item"><div class="ican-num" style="background:linear-gradient(135deg,#26A69A,#4DB6AC);">3</div><div class="ican-text"><strong>I can</strong> explain how changing a character’s choices changes what happens in the story.</div></div>
     </div>
   </div>
 </div>
@@ -430,7 +422,7 @@ body{font-family:'Nunito','Century Gothic','Arial Rounded MT Bold',Verdana,sans-
   </div>
 </div>
 
-<div class="art-divider"><span class="bounce-emoji">&#x1F4D6;</span> <span class="bounce-emoji">&#x270F;&#xFE0F;</span> <span class="bounce-emoji">&#x1F9E3;</span> <span class="bounce-emoji">&#x1F4DD;</span> <span class="bounce-emoji">&#x1F43A;</span> <span class="bounce-emoji">&#x1F9FA;</span> <span class="bounce-emoji">&#x1F4DA;</span> <span class="bounce-emoji">&#x1F989;</span></div>
+<div class="art-divider"><span class="bounce-emoji">&#x1F4D6;</span> <span class="bounce-emoji">&#x270F;&#xFE0F;</span> <span class="bounce-emoji">&#x1F43B;</span> <span class="bounce-emoji">&#x1F4DD;</span> <span class="bounce-emoji">&#x1F49A;</span> <span class="bounce-emoji">&#x1F42D;</span> <span class="bounce-emoji">&#x1F4DA;</span> <span class="bounce-emoji">&#x1F989;</span></div>
 <div class="callout callout-tip"><span class="callout-icon bounce-emoji">&#x1F4E2;</span><p><strong>Important:</strong> All On Demand Students can join Live ELA class to earn participation credit. Check your Canvas calendar for live session times.</p></div>
 
 <div class="card theme-coral" style="margin-top:22px;margin-bottom:0">
@@ -441,7 +433,7 @@ body{font-family:'Nunito','Century Gothic','Arial Rounded MT Bold',Verdana,sans-
       <div class="card-head-title">Little Red Riding Hood and the Wolf Sort</div>
     </div>
   </div>
-  <div class="card-body" style="padding:0"><iframe src="ela-1st-q2-w10-sort.html" title="Little Red Riding Hood and the Wolf sorting game" style="display:block;width:100%;height:760px;border:0" onload="try{var h=this.contentDocument.documentElement.scrollHeight;if(h>760)this.style.height=h+'px';}catch(e){}"></iframe></div>
+  <div class="card-body" style="padding:0"><iframe src="ela-1st-q2-w10-sort.html" title="Little Red Riding Hood and the Wolf sorting game" style="display:block;width:100%;height:560px;border:0"></iframe></div>
 </div>
 
 </div>

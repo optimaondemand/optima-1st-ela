@@ -1,0 +1,170 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pumpkin Text Features Sort</title>
+<style>
+  :root{
+    --cream:#FFF6E6; --ink:#2B2A28; --card:#FFFFFF;
+    --head-a:#FFB070; --head-b:#E8620C;
+    --label-a:#7CCB5A; --label-b:#3C8A22;
+    --cap-a:#B58CF0; --cap-b:#7A4BC9;
+    --good:#4CAF50; --bad:#E05252;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;min-height:100%;font-family:'Trebuchet MS','Segoe UI',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;}
+  .wrap{max-width:980px;margin:0 auto;padding:18px 16px 32px;}
+  header{text-align:center;margin-bottom:8px;}
+  h1{font-size:clamp(1.5rem,5vw,2.3rem);margin:4px 0 2px;color:#D2540A;}
+  p.sub{margin:0;font-size:1rem;color:#5a5854;}
+  .scoreboard{display:flex;justify-content:center;gap:16px;margin:10px 0 16px;font-weight:bold;flex-wrap:wrap;}
+  .scoreboard span{background:var(--card);border-radius:999px;padding:6px 16px;box-shadow:0 2px 6px rgba(0,0,0,.08);}
+  .tray{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;min-height:110px;align-items:center;}
+  .item{
+    min-width:130px;max-width:190px;min-height:84px;padding:10px 12px;background:var(--card);
+    border:3px solid #eadfc8;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    text-align:center;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+    box-shadow:0 3px 0 #eadfc8;transition:transform .15s,box-shadow .15s,border-color .15s,opacity .3s;
+  }
+  .item .emoji{font-size:1.6rem;}
+  .item .text{font-size:1.02rem;font-weight:bold;line-height:1.25;}
+  .item:hover{transform:translateY(-2px);}
+  .item.selected{border-color:#E8620C;transform:scale(1.06);box-shadow:0 0 0 4px rgba(232,98,12,.2),0 3px 0 #E8620C;}
+  .item.wrong{animation:shake .4s;border-color:var(--bad);}
+  .item.done{opacity:0;transform:scale(.4);pointer-events:none;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .hint{text-align:center;color:#7a766d;min-height:1.5em;margin:12px 0;}
+  .bins{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;}
+  .bin{
+    flex:1;min-width:230px;max-width:310px;min-height:190px;border-radius:24px;padding:16px 12px 18px;color:#fff;text-align:center;
+    cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .12s;
+  }
+  .bin:active{transform:translateY(3px);}
+  .bin.heading{background:linear-gradient(160deg,var(--head-a),var(--head-b));}
+  .bin.label{background:linear-gradient(160deg,var(--label-a),var(--label-b));}
+  .bin.caption{background:linear-gradient(160deg,var(--cap-a),var(--cap-b));}
+  .bin .icon{font-size:2rem;}
+  .bin h2{margin:0;font-size:1.4rem;}
+  .bin .def{font-size:.88rem;line-height:1.25;opacity:.95;}
+  .bin.glow{box-shadow:0 0 0 5px rgba(255,255,255,.7),0 6px 0 rgba(0,0,0,.12);}
+  .bin-items{display:flex;flex-direction:column;gap:5px;margin-top:8px;width:100%;}
+  .bin-items span{background:rgba(255,255,255,.25);border-radius:10px;font-size:.9rem;padding:4px 8px;font-weight:bold;}
+  .celebrate{text-align:center;font-weight:bold;font-size:1.25rem;color:#D2540A;margin-top:16px;display:none;}
+  .controls{text-align:center;margin-top:18px;}
+  button.reset{background:var(--ink);color:#fff;border:none;border-radius:999px;padding:10px 22px;font-size:1rem;cursor:pointer;}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){--cream:#1F1B16;--ink:#F4F0E8;--card:#2B2620;}
+    .item{border-color:#40372b;box-shadow:0 3px 0 #40372b;}
+    p.sub,.hint{color:#bdb6a8;}
+  }
+  :root[data-theme="dark"]{--cream:#1F1B16;--ink:#F4F0E8;--card:#2B2620;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🎃 Pumpkin Text Features</h1>
+    <p class="sub">Tap a piece of text from a pumpkin book, then tap the text feature it is!</p>
+  </header>
+  <div class="scoreboard">
+    <span id="score">✅ Correct: 0</span>
+    <span id="remaining">🧩 Left: 12</span>
+  </div>
+  <div class="tray" id="tray"></div>
+  <div class="hint" id="hint">Tap one above to pick it up.</div>
+  <div class="bins">
+    <div class="bin heading" data-type="heading">
+      <div class="icon">📰</div><h2>Heading</h2>
+      <div class="def">A title above a part of the book</div>
+      <div class="bin-items" id="items-heading"></div>
+    </div>
+    <div class="bin label" data-type="label">
+      <div class="icon">🏷️</div><h2>Label</h2>
+      <div class="def">One word that names a part in a picture</div>
+      <div class="bin-items" id="items-label"></div>
+    </div>
+    <div class="bin caption" data-type="caption">
+      <div class="icon">💬</div><h2>Caption</h2>
+      <div class="def">A sentence under a picture</div>
+      <div class="bin-items" id="items-caption"></div>
+    </div>
+  </div>
+  <div class="celebrate" id="celebrate">🎉 You found all the text features! Great reading! 🎉</div>
+  <div class="controls"><button class="reset" id="resetBtn">🔄 Start Over</button></div>
+</div>
+
+<script>
+const ITEMS = [
+  {text:"How Pumpkins Grow", emoji:"🌱", type:"heading"},
+  {text:"Parts of a Pumpkin", emoji:"🎃", type:"heading"},
+  {text:"At the Pumpkin Patch", emoji:"🚜", type:"heading"},
+  {text:"Pumpkin Seeds", emoji:"🌰", type:"heading"},
+  {text:"stem", emoji:"📍", type:"label"},
+  {text:"vine", emoji:"📍", type:"label"},
+  {text:"skin", emoji:"📍", type:"label"},
+  {text:"seeds", emoji:"📍", type:"label"},
+  {text:"A farmer picks a ripe pumpkin.", emoji:"🧑‍🌾", type:"caption"},
+  {text:"Pumpkins grow on long green vines.", emoji:"🌿", type:"caption"},
+  {text:"Children pick pumpkins in the patch.", emoji:"👧", type:"caption"},
+  {text:"A pumpkin has many seeds inside.", emoji:"🔍", type:"caption"},
+];
+const NAMES = {heading:"Heading", label:"Label", caption:"Caption"};
+let selected=null, correct=0;
+const tray=document.getElementById('tray'), hint=document.getElementById('hint'), celebrate=document.getElementById('celebrate');
+
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function render(){
+  tray.innerHTML='';
+  shuffle(ITEMS.map((it,i)=>({...it,id:i}))).forEach(it=>{
+    const el=document.createElement('div');
+    el.className='item'; el.dataset.id=it.id; el.dataset.type=it.type;
+    el.innerHTML=`<div class="emoji">${it.emoji}</div><div class="text">${it.text}</div>`;
+    el.addEventListener('click',()=>pick(el));
+    tray.appendChild(el);
+  });
+}
+function pick(el){
+  if(el.classList.contains('done'))return;
+  document.querySelectorAll('.item.selected').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected'); selected=el;
+  hint.textContent='Now tap Heading, Label, or Caption!';
+}
+function sortInto(bin){
+  if(!selected){hint.textContent='Pick one from the top first!';return;}
+  const type=bin.dataset.type, el=selected;
+  bin.classList.add('glow'); setTimeout(()=>bin.classList.remove('glow'),300);
+  if(el.dataset.type===type){
+    const badge=document.createElement('span');
+    badge.textContent=el.querySelector('.text').textContent;
+    document.getElementById('items-'+type).appendChild(badge);
+    el.classList.add('done'); selected=null; correct++;
+    hint.textContent=`Yes! That is a ${NAMES[type]}.`;
+    document.getElementById('score').textContent=`✅ Correct: ${correct}`;
+    document.getElementById('remaining').textContent=`🧩 Left: ${ITEMS.length-correct}`;
+    if(correct===ITEMS.length) setTimeout(()=>celebrate.style.display='block',400);
+  } else {
+    el.classList.remove('selected'); el.classList.add('wrong'); selected=null;
+    setTimeout(()=>el.classList.remove('wrong'),400);
+    hint.textContent='Not quite. Is it a title, one word, or a whole sentence?';
+  }
+}
+document.querySelectorAll('.bin').forEach(b=>b.addEventListener('click',()=>sortInto(b)));
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  correct=0; selected=null; celebrate.style.display='none';
+  ['heading','label','caption'].forEach(t=>document.getElementById('items-'+t).innerHTML='');
+  hint.textContent='Tap one above to pick it up.';
+  document.getElementById('score').textContent='✅ Correct: 0';
+  document.getElementById('remaining').textContent=`🧩 Left: ${ITEMS.length}`;
+  render();
+});
+render();
+</script>
+</body>
+</html>
+
+</body></html>
