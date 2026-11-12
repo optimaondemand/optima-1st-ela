@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Forest Subject and Predicate Sort</title>
+<style>
+  :root{
+    --cream:#F3F8EC; --ink:#2B2A28; --card:#FFFFFF;
+    --subj-a:#8BCB6A; --subj-b:#3C8A22;
+    --pred-a:#D9A066; --pred-b:#9B5E26;
+    --bad:#E05252;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;min-height:100%;font-family:'Trebuchet MS','Segoe UI',sans-serif;background:var(--cream);color:var(--ink);overflow-x:hidden;}
+  .wrap{max-width:960px;margin:0 auto;padding:18px 16px 32px;}
+  header{text-align:center;margin-bottom:8px;}
+  h1{font-size:clamp(1.6rem,5vw,2.4rem);margin:4px 0 2px;color:#2F6B2A;}
+  p.sub{margin:0;font-size:1.05rem;color:#4d5a48;}
+  .scoreboard{display:flex;justify-content:center;gap:16px;margin:10px 0 16px;font-weight:bold;flex-wrap:wrap;}
+  .scoreboard span{background:var(--card);border-radius:999px;padding:6px 16px;box-shadow:0 2px 6px rgba(0,0,0,.08);}
+  .tray{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;min-height:130px;align-items:center;}
+  .item{
+    width:164px;min-height:108px;padding:10px 8px;background:var(--card);border:3px solid #d9e4cc;border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;
+    cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;box-shadow:0 3px 0 #d9e4cc;
+    transition:transform .15s,box-shadow .15s,border-color .15s,opacity .3s;
+  }
+  .item .emoji{font-size:2rem;}
+  .item .text{font-size:1.05rem;font-weight:bold;line-height:1.2;}
+  .item:hover{transform:translateY(-2px);}
+  .item.selected{border-color:#2F6B2A;transform:scale(1.06);box-shadow:0 0 0 4px rgba(47,107,42,.2),0 3px 0 #2F6B2A;}
+  .item.wrong{animation:shake .4s;border-color:var(--bad);}
+  .item.done{opacity:0;transform:scale(.4);pointer-events:none;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .hint{text-align:center;color:#5d6a58;min-height:1.5em;margin:12px 0;font-size:1.05rem;}
+  .bins{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;}
+  .bin{
+    flex:1;min-width:250px;max-width:430px;min-height:230px;border-radius:24px;padding:16px 12px 18px;color:#fff;text-align:center;
+    cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .12s;
+  }
+  .bin:active{transform:translateY(3px);}
+  .bin.subject{background:linear-gradient(160deg,var(--subj-a),var(--subj-b));}
+  .bin.predicate{background:linear-gradient(160deg,var(--pred-a),var(--pred-b));}
+  .bin .icon{font-size:2.2rem;}
+  .bin h2{margin:0;font-size:1.6rem;}
+  .bin .def{font-size:1rem;line-height:1.25;}
+  .bin.glow{box-shadow:0 0 0 5px rgba(255,255,255,.7),0 6px 0 rgba(0,0,0,.12);}
+  .bin-items{display:flex;flex-direction:column;gap:5px;margin-top:8px;width:100%;align-items:center;}
+  .bin-items span{background:rgba(255,255,255,.28);border-radius:10px;font-size:.95rem;padding:4px 10px;font-weight:bold;}
+  .celebrate{text-align:center;font-weight:bold;font-size:1.3rem;color:#2F6B2A;margin-top:16px;display:none;}
+  .controls{text-align:center;margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  button.btn{background:var(--ink);color:#fff;border:none;border-radius:999px;padding:10px 22px;font-size:1rem;cursor:pointer;font-family:inherit;}
+  button.btn.alt{background:#2F6B2A;}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){--cream:#171C15;--ink:#F1F3EC;--card:#242B21;}
+    .item{border-color:#3a4535;box-shadow:0 3px 0 #3a4535;}
+    p.sub,.hint{color:#b8c4b0;}
+    h1,.celebrate{color:#8FD07A;}
+    button.btn{background:#3a4535;}
+  }
+  :root[data-theme="dark"]{--cream:#171C15;--ink:#F1F3EC;--card:#242B21;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🌲 Forest Subjects and Predicates</h1>
+    <p class="sub">Tap a part of a sentence, then tap where it belongs!</p>
+  </header>
+  <div class="scoreboard">
+    <span id="score">✅ Correct: 0</span>
+    <span id="remaining">🧩 Left: 12</span>
+  </div>
+  <div class="tray" id="tray"></div>
+  <div class="hint" id="hint">Tap a card to pick it up.</div>
+  <div class="bins">
+    <div class="bin subject" data-type="subject">
+      <div class="icon">🐻</div><h2>Subject</h2><div class="def">WHO or WHAT the sentence is about</div>
+      <div class="bin-items" id="items-subject"></div>
+    </div>
+    <div class="bin predicate" data-type="predicate">
+      <div class="icon">🏃</div><h2>Predicate</h2><div class="def">What the subject DOES or IS</div>
+      <div class="bin-items" id="items-predicate"></div>
+    </div>
+  </div>
+  <div class="celebrate" id="celebrate">🎉 You sorted every sentence part! 🎉</div>
+  <div class="controls">
+    <button class="btn alt" id="soundBtn">🔊 Sound: On</button>
+    <button class="btn" id="resetBtn">🔄 Start Over</button>
+  </div>
+</div>
+
+<script>
+const ITEMS = [
+  {text:"The brown bear", emoji:"🐻", type:"subject"},
+  {text:"A tiny mouse", emoji:"🐭", type:"subject"},
+  {text:"Two owls", emoji:"🦉", type:"subject"},
+  {text:"The red fox", emoji:"🦊", type:"subject"},
+  {text:"A hungry squirrel", emoji:"🐿️", type:"subject"},
+  {text:"The deer", emoji:"🦌", type:"subject"},
+  {text:"sleeps in a cave.", emoji:"💤", type:"predicate"},
+  {text:"hides in a log.", emoji:"🪵", type:"predicate"},
+  {text:"hoot at night.", emoji:"🌙", type:"predicate"},
+  {text:"runs through the trees.", emoji:"🌲", type:"predicate"},
+  {text:"gathers acorns.", emoji:"🌰", type:"predicate"},
+  {text:"eats red berries.", emoji:"🍓", type:"predicate"},
+];
+const NAMES={subject:"a subject, who or what the sentence is about", predicate:"a predicate, what the subject does"};
+let selected=null, correct=0, soundOn=true;
+const tray=document.getElementById('tray'), hint=document.getElementById('hint'), celebrate=document.getElementById('celebrate');
+
+function speak(t){
+  if(!soundOn) return;
+  try{ if('speechSynthesis' in window){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.rate=0.85; speechSynthesis.speak(u);} }catch(e){}
+}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function render(){
+  tray.innerHTML='';
+  shuffle(ITEMS.map((it,i)=>({...it,id:i}))).forEach(it=>{
+    const el=document.createElement('div');
+    el.className='item'; el.dataset.id=it.id; el.dataset.type=it.type; el.dataset.text=it.text;
+    el.innerHTML=`<div class="emoji">${it.emoji}</div><div class="text">${it.text}</div>`;
+    el.addEventListener('click',()=>pick(el));
+    tray.appendChild(el);
+  });
+}
+function pick(el){
+  if(el.classList.contains('done'))return;
+  document.querySelectorAll('.item.selected').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected'); selected=el;
+  speak(el.dataset.text);
+  hint.textContent='Is it WHO or WHAT, or what they DO? Tap Subject or Predicate.';
+}
+function sortInto(bin){
+  if(!selected){hint.textContent='Pick a card from the top first!';return;}
+  const type=bin.dataset.type, el=selected, text=el.dataset.text;
+  bin.classList.add('glow'); setTimeout(()=>bin.classList.remove('glow'),300);
+  if(el.dataset.type===type){
+    const b=document.createElement('span'); b.textContent=text;
+    document.getElementById('items-'+type).appendChild(b);
+    el.classList.add('done'); selected=null; correct++;
+    hint.textContent=`Yes! "${text}" is ${NAMES[type]}.`;
+    speak(`Yes! ${text} is ${NAMES[type]}.`);
+    document.getElementById('score').textContent=`✅ Correct: ${correct}`;
+    document.getElementById('remaining').textContent=`🧩 Left: ${ITEMS.length-correct}`;
+    if(correct===ITEMS.length) setTimeout(()=>celebrate.style.display='block',400);
+  } else {
+    el.classList.remove('selected'); el.classList.add('wrong'); selected=null;
+    setTimeout(()=>el.classList.remove('wrong'),400);
+    hint.textContent='Not quite. Does it name an animal, or tell what the animal does?';
+  }
+}
+document.querySelectorAll('.bin').forEach(b=>b.addEventListener('click',()=>sortInto(b)));
+document.getElementById('soundBtn').addEventListener('click',e=>{
+  soundOn=!soundOn; e.currentTarget.textContent=soundOn?'🔊 Sound: On':'🔇 Sound: Off';
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  correct=0; selected=null; celebrate.style.display='none';
+  ['subject','predicate'].forEach(t=>document.getElementById('items-'+t).innerHTML='');
+  hint.textContent='Tap a card to pick it up.';
+  document.getElementById('score').textContent='✅ Correct: 0';
+  document.getElementById('remaining').textContent=`🧩 Left: ${ITEMS.length}`;
+  render();
+});
+render();
+</script>
+</body>
+</html>
